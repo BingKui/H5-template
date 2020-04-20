@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .wrapper {
+            overflow: hidden;
+        }
+        .wrapper-left{
+            margin-left: -70px;
+            position: relative;
+            float: left;
+            width: 500px;
+            height: 500px;
+            /* perspective: 5000px; */
+            transform-style: preserve-3d;
+            /* animation: round 10s linear infinite; */
+            user-select: none;
+        }
+        
+        .wrapper-left>div {
+            top: 150px;
+            left: 150px;
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            box-sizing: border-box;
+            opacity: 0.9;
+            border: 1px solid #000;
+            float: left;
+            margin: 0 auto;
+            text-align: center;
+            line-height: 200px;
+            font-size: 30px;
+        }
+        .front {
+            background-color: bisque;
+            transform: translateZ(100px);
+        }
+        .back{
+            background-color: brown;
+            transform: translateZ(-100px) rotateX(180deg);
+        }
+        .left{
+            background-color: chocolate;
+            transform: translateX(-100px) rotateY(-90deg);
+        }
+        .right{
+            background-color:coral;
+            transform: translateX(100px) rotateY(90deg);
+        }
+        .top{
+            background-color: cornflowerblue;
+            transform: translateY(-100px) rotateX(90deg) ;
+        }
+        .bottom{
+            background-color: violet;
+            transform: translateY(100px) rotateX(-90deg) ;
+        }
+ 
+        @keyframes round{
+            0%{
+                transform: rotateY(0deg) rotateX(0deg) rotateZ(0deg);
+            }
+            100%{
+                transform:  rotateX(360deg) rotateZ(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- rotateX(65deg) rotateY(0deg) rotateZ(45deg); -->
+    <!-- rotateX(-200deg) rotateY(45deg) rotateZ(0deg); -->
+    <!-- rotateX(-115deg) rotateY(0deg) rotateZ(-40deg); -->
+    <div class="wrapper">
+        <div class="wrapper-left" style="transform: rotateX(-25deg) rotateY(-45deg) rotateZ(0deg);">
+            <div class="front">1</div>
+            <div class="back">2</div>
+            <div class="left">3</div>
+            <div class="right">4</div>
+            <div class="top">5</div>
+            <div class="bottom">6</div>
+        </div>
+    </div>
+</body>
+<script>
+    let startX, startY, endX, endY;
+    const element = document.querySelector('.wrapper-left');
+    element.addEventListener('touchstart', event => {
+        const { changedTouches } = event;
+        startX = changedTouches[0].pageX;
+        startY = changedTouches[0].pageY;
+    });
+    element.addEventListener('touchmove', event => {
+        // console.log('move', event);
+    })
+    element.addEventListener('touchend', event => {
+        const { changedTouches } = event;
+        endX = changedTouches[0].pageX;
+        endY = changedTouches[0].pageY;
+        const x_val = endX - startX;
+        const y_val = endY - startY;
+        console.log('向右', element.style.transform.substring(7))
+        const _text = element.style.cssText;
+        if (Math.abs(x_val) > Math.abs(y_val)) {
+            console.log('横向滚动')
+            if (x_val > 0) {
+                console.log('向右');
+                element.style.transform = dealRotate(_text, 'right');
+            } else {
+                console.log('向左', element.style.cssText)
+                element.style.transform = dealRotate(_text, 'left');
+            }
+        } else {
+            console.log('纵向滚动')
+            if (y_val > 0) {
+                console.log('向下')
+                element.style.transform = dealRotate(_text, 'down');
+            } else {
+                console.log('向上')
+                element.style.transform = dealRotate(_text, 'up');
+            }
+        }
+        console.log('x => ', endX - startX)
+        console.log('y => ', endY - startY)
+
+    });
+    const dealRotate = (cssText, direction) => {
+        const arr = cssText.split(' ');
+        let x = arr[1].split('(')[1].split('deg')[0] - 0;
+        let y = arr[2].split('(')[1].split('deg')[0] - 0;
+        let z = arr[3].split('(')[1].split('deg')[0] - 0;
+        if (direction === 'up') {
+            if (y == 0) {
+                y = z;
+                z = 0;
+            } else {
+                z = - y;
+                y = 0;
+            }
+            x += 90;
+            if (Math.abs(x) > 360) {
+                y = -y;
+            }
+        }
+        if (direction === 'down') {
+            if (y !== 0) {
+                z = y;
+                y = 0;
+            } else {
+                y = Math.abs(z);
+                z = 0;
+            }
+            x -= 90;
+            if (Math.abs(x) > 360) {
+                y = -y;
+            }
+        }
+        if (direction === 'left') {
+            y -= 90;
+        }
+        if (direction === 'right') {
+            y += 90;
+        }
+        
+        return `rotateX(${getRealVal(x)}deg) rotateY(${getRealVal(y)}deg) rotateZ(${getRealVal(z)}deg)`;
+    };
+    const getRealVal = (val) => {
+        let sign = '';
+        if (val < 0) {
+            sign = '-';
+        }
+        return Math.abs(val) > 360 ? `${sign}${Math.abs(val) - 360}` - 0 : val;
+    };
+</script>
+</html>
