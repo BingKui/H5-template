@@ -145,24 +145,45 @@
                 y = -y;
             }
         }
+        // rotateX(-25deg) rotateY(135deg) rotateZ(0deg);
+        // rotateX(-115deg) rotateY(180deg) rotateZ(45deg);
+
+        // rotateX(-205deg) rotateY(45deg) rotateZ(0deg);
+        // rotateX(-295deg) rotateY(0deg) rotateZ(45deg)
+
         if (direction === 'down') {
-            if (y !== 0) {
-                z = y;
-                y = 0;
+            if (x < 0 && y > 0) {
+                y += 45;
+                z += 45;
             } else {
-                y = Math.abs(z);
-                z = 0;
+                if (y !== 0) {
+                    z = y;
+                    y = 0;
+                } else {
+                    y = Math.abs(z);
+                    z = 0;
+                }
+                if (Math.abs(x) > 360) {
+                    y = -y;
+                }
+            }
+            if (Math.abs(x) > 200) {
+                y = 0;
             }
             x -= 90;
-            if (Math.abs(x) > 360) {
-                y = -y;
-            }
         }
         if (direction === 'left') {
             y -= 90;
         }
         if (direction === 'right') {
-            y += 90;
+            if (y < 0) {
+                y += 90;
+            }
+            if (z < 0) {
+                z += 90;
+            } else {
+                y += 90;
+            }
         }
         
         return `rotateX(${getRealVal(x)}deg) rotateY(${getRealVal(y)}deg) rotateZ(${getRealVal(z)}deg)`;
